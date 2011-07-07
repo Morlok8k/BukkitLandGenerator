@@ -1,0 +1,47 @@
+Bukkit Land Generator
+---------------------
+Version 0.1.0 Alpha (Preview Release)
+---------------------
+
+
+
+This, "BLG", is plugin for the Minecraft Server mod, Bukkit.
+
+This was created as Minecraft Land Generator cannot generate worlds that are plugin-based - that is, Worlds that are not available in Vanilla (Unmodified) Minecraft.
+This is actually an Issue with Bukkit, and not MLG...  Worlds created via Plugins do not behave the same way as the originals do - at least not in the way that MLG exploits the server.
+
+I created this plugin to be able to expand my plugin based worlds that MLG couldn't access.
+
+
+It tells the server to generate chunks of land by force without actually visiting that location.
+
+It doesn't matter what type of map it is: normal, nether, skylands, some random plugin...  It all generates correctly!
+
+
+INSTRUCTIONS:
+ - Installation:
+     - Just install like all other bukkit plugins:
+     - Put BukkitLandGenerator.jar in the Plugins folder
+     - Start/Restart/Reload the bukkit server.
+
+ - Generating:
+     - While playing Minecraft on this Bukkit Server:
+     - access the chat interface (usually just by hitting the key "t")
+     - type:
+             /BLGgen x
+     - where "x" is the number of chunks you want in a square diamater.
+         - Yes, BLG uses chunks, and MLG uses blocks.  There are 16 Blocks in a Chunk.
+         - No, case doesn't matter.  you can type "/blggen 10" if you want to.
+
+
+Version History:
+
+0.1.0 Alpha (Preview Release)
+ - First Release
+ - Many Bugs (Overloading and crashing of the server - this has some workarounds for most of the bugs)
+ - Has hard-coded limits on the size it can create at one time, to prevent server crashing.
+ - Intentionally generates Chunks MUCH SLOWER than Minecraft Land Generator:
+    - Two reasons for this:
+    - 1. I'm trying to prevent the overloading of the server - it's very easy to do this!
+       - My very first working version of BLG actually ran faster than MLG, but kicked all users while generating.
+    - 2. Unlike MLG, where you may have downtime while expanding the world, BLG is running on a running server which may have multiple people playing on, so it doesn't matter as much if it takes a bit longer generating land.

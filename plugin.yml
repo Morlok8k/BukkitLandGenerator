@@ -1,0 +1,10 @@
+name: BukkitLandGenerator
+main: me.Morlok8k.BukkitLandGenerator.BukkitLandGenerator
+version: 0.0.35
+author: Morlok8k
+
+commands:
+    BLGgen:
+        description: Generate Land in a square of X Chunks around player position
+        usage: /BLGgen <Number of Chunks in a Square Diameter>
+        
