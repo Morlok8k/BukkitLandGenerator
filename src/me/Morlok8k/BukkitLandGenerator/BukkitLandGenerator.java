@@ -81,7 +81,7 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 	public static String chatPrefix = ChatColor.GREEN + logPrefix + ChatColor.WHITE;
 	String version;
 	
-	public static final boolean debug = true;    // debug output
+	public static final boolean debug = false;    // debug output
 	
 	public boolean pluginEnabled = false;  //true means plugin is enabled
 	
