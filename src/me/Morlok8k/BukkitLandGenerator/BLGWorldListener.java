@@ -10,7 +10,10 @@ public class BLGWorldListener extends WorldListener {
 
 	private static final Logger log = Logger.getLogger("Minecraft");
 	public static final String logPrefix = "[BukkitLandGenerator] ";
-	public static String chatPrefix = ChatColor.GREEN + logPrefix + ChatColor.WHITE;
+	//public static String chatPrefix = ChatColor.GREEN + logPrefix + ChatColor.WHITE;
+
+	// debug mode
+	public static final boolean debug = false;
 	
 	
 	public static BukkitLandGenerator plugin;
@@ -29,24 +32,26 @@ public class BLGWorldListener extends WorldListener {
 		int z = chunk.getZ();
 		String chunkLoc = ("{" + x + "," + z + "}");
 		
-		if (newChunk) {
-			log.info(logPrefix + "New Chunk Loaded - " + world.getName() + " " + chunkLoc);
-			// we don't unload a new chunk yet - it needs to be populated first!
-			
-		} else {
-			log.info(logPrefix + "Existing Chunk Loaded - " + world.getName() + " " + chunkLoc);
-			
-			//we can get in an infinite loop here. damn!
-			/*
-			boolean unloaded = world.unloadChunk(chunk.getX(), chunk.getZ(), true, true);
-			if (unloaded) {
-				log.info(logPrefix + "Existing Chunk Unloaded!");
+		if (debug) {
+			if (newChunk) {
+				log.info(logPrefix + "New Chunk Loaded - " + world.getName() + " " + chunkLoc);
+				// we don't unload a new chunk yet - it needs to be populated first!
+				
+			} else {
+				log.info(logPrefix + "Existing Chunk Loaded - " + world.getName() + " " + chunkLoc);
+				
+				//we can get in an infinite loop here. damn!
+				/*
+				boolean unloaded = world.unloadChunk(chunk.getX(), chunk.getZ(), true, true);
+				if (unloaded) {
+					log.info(logPrefix + "Existing Chunk Unloaded!");
+				}
+				// we attempt to unload this existing chunk safely, if we can.
+				*/
 			}
-			// we attempt to unload this existing chunk safely, if we can.
-			*/
+
 		}
-		
-		
+	
 	}
 	
 	public void onChunkUnload(ChunkUnloadEvent event) {
@@ -57,18 +62,20 @@ public class BLGWorldListener extends WorldListener {
 		int x = chunk.getX();
 		int z = chunk.getZ();
 		String chunkLoc = ("{" + x + "," + z + "}");
-		
-		log.info(logPrefix + "Chunk unloaded - " + world.getName() + " " + chunkLoc);
-		
+
+		if (debug) {
+			log.info(logPrefix + "Chunk unloaded - " + world.getName() + " " + chunkLoc);
+		}
 		
 		boolean unloaded = world.unloadChunk(chunk.getX(), chunk.getZ(), true, true);
-		if (unloaded) {
-			log.info(logPrefix + "Existing Chunk Unloaded!");
+		
+		if (debug) {
+			if (unloaded) {
+				log.info(logPrefix + "Existing Chunk Unloaded!");
+				// we attempt to unload this existing chunk safely, if we can.
+			}
 		}
-		// we attempt to unload this existing chunk safely, if we can.
-		
-		
-		
+	
 	}
 	
 	
@@ -81,9 +88,11 @@ public class BLGWorldListener extends WorldListener {
 		int z = chunk.getZ();
 		String chunkLoc = ("{" + x + "," + z + "}");
 		
-		log.info(logPrefix + "Chunk Populated - " + world.getName() + " " + chunkLoc);
+		if (debug) {
+			log.info(logPrefix + "Chunk Populated - " + world.getName() + " " + chunkLoc);	
 		
+		}
+				
 	}
-	
-	
+		
 }

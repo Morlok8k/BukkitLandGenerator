@@ -81,7 +81,7 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 	public static String chatPrefix = ChatColor.GREEN + logPrefix + ChatColor.WHITE;
 	String version;
 	
-	public static final boolean debug = true, verboseDebug = true;    // debug output
+	public static final boolean debug = true;    // debug output
 	
 	public boolean pluginEnabled = false;  //true means plugin is enabled
 	
@@ -97,6 +97,9 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 		PluginDescriptionFile pdf = this.getDescription();
 		version = pdf.getVersion();
 		
+		if (debug) {
+			version = (pdf.getVersion() + " (Debug Version!)"); 
+		}
 		
 		pm.registerEvent(Event.Type.CHUNK_LOAD, worldListener, Event.Priority.High, this);
 		pm.registerEvent(Event.Type.CHUNK_POPULATED, worldListener, Event.Priority.High, this);
@@ -116,20 +119,19 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 	
 	public synchronized void run() {
 		
-		// this is where the real generating happens, in a seperate thread!
+		// this is where the real generating happens, in a separate thread!
 		
 		Player player = threadPlayer;		// I can't send a new thread arguments,
 		int radius = threadRadius;			// so I'm using global vars
 		World world = threadWorld;			// I only read them once to local vars
-		Location loc = threadLocation;		// so the thread can run independantly
-		threadPlayer = null;				// and to make sure i dont cause any 
+		Location loc = threadLocation;		// so the thread can run independently
+		threadPlayer = null;				// and to make sure i don't cause any 
 		threadRadius = 0;					// problems elsewhere
 		threadWorld = null;					//
 		threadLocation = null;				// I know... its not memory efficient
 		
 		log.info(logPrefix + " BLG Generation Thread: " + Thread.currentThread().getName());
-        
-        
+                
         
         if (debug) {
 			log.info(logPrefix + " [DEBUG-Generate] " + " player: " + player.getDisplayName() + " radius: " + radius + " World: " + world.getName() + " Location [X,Y,Z]: [" + loc.getX() + "," + loc.getY() + "," + loc.getZ() + "]");
@@ -245,9 +247,9 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 			}
 			
 			
-			log.info(logPrefix + "Sleeping for 10 Seconds...");
+			log.info(logPrefix + "Sleeping for 20 Seconds...");
 			try {
-				Thread.sleep(10000); // 1000 = do nothing for 1000 milliseconds (1 second)
+				Thread.sleep(20000); // 1000 = do nothing for 1000 milliseconds (1 second)
 			} catch(InterruptedException e){
 				e.printStackTrace();
 			}
@@ -260,7 +262,13 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 		log.info(logPrefix + "Finished Queuing chunks to be generated.");
 //end of MLG copy
         
-        
+		try {
+			Thread.sleep(60000); // 1000 = do nothing for 1000 milliseconds (1 second)
+		} catch(InterruptedException e){
+			e.printStackTrace();
+		}
+		
+		server.dispatchCommand((CommandSender) player, "save-all");
         
         
     }
@@ -277,9 +285,9 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 		
 		if(sender.toString().contains("org.bukkit.craftbukkit.command")) {
 			//check to see if the command is from the console.
-			isConsole = true;
-			chatPrefix = logPrefix;  //if run from the console, remove colored chats
 			
+			//isConsole = true;
+				
 			log.info(logPrefix + "Bukkit Land Generator needs to be run In-Game! (And only by an OP!)");
 			return true;
 		}
@@ -290,7 +298,7 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 		
 		
 		Player player = (Player) sender;
-		if ((debug == true) | (verboseDebug == true)) {
+		if (debug) {
 			player.sendMessage(chatPrefix + " [DEBUG-onCommand] " + " Command: " + cmd.getName() + " label: " + label + " Args: " + Integer.parseInt(args[0]));
 			log.info(logPrefix + " [DEBUG-onCommand] " + " Command: " + cmd.getName());
 			log.info(logPrefix + " [DEBUG-onCommand] " + " label: " + label);
@@ -299,16 +307,19 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 			log.info("");
 		}
 		
-		List<World> lst = server.getWorlds();
-		int listSize = 0;
-		//listSize = lst.size();
-		
-		log.info(logPrefix + "List of Worlds:");
-		while (listSize != lst.size()){
-			log.info(logPrefix + listSize + ": " + lst.get(listSize).getName() + " - " + lst.get(listSize).getEnvironment().toString());
-			listSize = (listSize + 1);
+		if (debug) {
+			List<World> lst = server.getWorlds();
+			int listSize = 0;
+			//listSize = lst.size();
+			
+			log.info(logPrefix + "List of Worlds:");
+			while (listSize != lst.size()){
+				log.info(logPrefix + listSize + ": " + lst.get(listSize).getName() + " - " + lst.get(listSize).getEnvironment().toString());
+				listSize = (listSize + 1);
+			}
+
 		}
-		
+				
 		if(cmd.getName().equalsIgnoreCase("blggen")){
 		
 			if (player.isOp()) {
@@ -316,15 +327,18 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 					if(args.length == 1){
 						Integer radius;
 						try {
-							radius = Integer.parseInt(args[0]);
+							radius = Integer.parseInt(args[0]);			//i was originally going to do a radius, but its technically diameter
 							log.info(logPrefix + " Radius: " + radius);
-							if(radius > 0){
+							if ((radius > 0) | (radius <= 75)) {		// put a cap of 75 chunk diameter
 								if (pluginEnabled == false){
 									log.info(logPrefix + "Plugin Disabled!");
 									return false;				//if server is shutting down while generating, dont generate any more!
 								}
 									
 								generate(player, radius, player.getWorld(), player.getLocation());
+							} else {
+								log.info(logPrefix + args[0] + " is not valid!");
+								return false;
 							}
 						} catch (NumberFormatException ex){
 							ex.printStackTrace();
@@ -358,8 +372,6 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 		//call thread
 		(new Thread(new BukkitLandGenerator())).start();
 		
-		
-		server.dispatchCommand((CommandSender) player, "save-all");
 	}
 
 }

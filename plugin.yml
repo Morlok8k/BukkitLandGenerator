@@ -1,6 +1,6 @@
 name: BukkitLandGenerator
 main: me.Morlok8k.BukkitLandGenerator.BukkitLandGenerator
-version: 0.0.35
+version: 0.1.0 Alpha (Preview Release)
 author: Morlok8k
 
 commands:
