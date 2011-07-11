@@ -178,12 +178,6 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 			for (int currentY = 0 - yRange / 2; currentY <= yRange / 2; currentY += increment) {
 				currentIteration++;
 				
-				countUnload = 0;
-				
-				//here i want to check the status of the queued chunks
-				Chunk[] cache = world.getLoadedChunks();
-				
-				log.info(logPrefix + "cache.length:" + cache.length);
 				
 				
 				log.info(logPrefix + "Chunk Location: {" + Integer.toString(currentX + xOffset) + "," + Integer.toString(currentY + yOffset) + "}   (" + currentIteration + "/" + totalIterations + ") " + Float.toString((Float.parseFloat(Integer.toString(currentIteration)) / Float.parseFloat(Integer.toString(totalIterations))) * 100) + "% Done" );			// Time Remaining estimate
@@ -211,49 +205,57 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 				*/				
 				
 				
-				/*
-				int unloadLoop = 0;
 				
-				// here I unload all loaded chunks, to make room for new chunks
-				
-				for (unloadLoop = 0; unloadLoop < cache.length; unloadLoop++) {
-					count = world.unloadChunk(cache[unloadLoop].getX(), cache[unloadLoop].getZ(), true, true);
-					if (count == true) {
-						countUnload++;
-						count = false;
-					}
-				
-				}
-				*/
-				
-				//log.info(logPrefix + "Cache: Unloaded " + countUnload + " of " + unloadLoop + " chunks.");
 				
 				//world.refreshChunk(x, z);
 				
 				
-				
-				
-				timeTracking[0] = timeTracking[1];
-				timeTracking[1] = timeTracking[2];
-				timeTracking[2] = timeTracking[3];
-				timeTracking[3] = System.currentTimeMillis();
-				if (currentIteration >= 4) {
-					differenceTime = (timeTracking[3] - timeTracking[0]) / 3; // well, this is what it boils down to
-					differenceTime *= 1 + (totalIterations - currentIteration);
-					log.info(String.format("Estimated time remaining: %dh%dm%ds",
-							differenceTime / (1000 * 60 * 60), (differenceTime % (1000 * 60 * 60)) / (1000 * 60), ((differenceTime % (1000 * 60 * 60)) % (1000 * 60)) / 1000));
-				}
-				
+			}
+			
+
+			timeTracking[0] = timeTracking[1];
+			timeTracking[1] = timeTracking[2];
+			timeTracking[2] = timeTracking[3];
+			timeTracking[3] = System.currentTimeMillis();
+			if (currentIteration >= 4) {
+				differenceTime = (timeTracking[3] - timeTracking[0]) / 3; // well, this is what it boils down to
+				differenceTime *= 1 + (totalIterations - currentIteration);
+				log.info(String.format(logPrefix + "Estimated time remaining: %dh%dm%ds",
+						differenceTime / (1000 * 60 * 60), (differenceTime % (1000 * 60 * 60)) / (1000 * 60), ((differenceTime % (1000 * 60 * 60)) % (1000 * 60)) / 1000));
 			}
 			
 			
+
+			countUnload = 0;
+			
+			//here i want to check the status of the queued chunks
+			Chunk[] cache = world.getLoadedChunks();
+			
+			//log.info(logPrefix + "cache.length:" + cache.length);
+			
+			int unloadLoop = 0;
+			
+			// here I unload all loaded chunks, to make room for new chunks
+			
+			for (unloadLoop = 0; unloadLoop < cache.length; unloadLoop++) {
+				count = world.unloadChunk(cache[unloadLoop].getX(), cache[unloadLoop].getZ(), true, true);
+				if (count == true) {
+					countUnload++;
+					count = false;
+				}
+			
+			}
+			
+			log.info(logPrefix + "Cache: Unloaded " + countUnload + " of " + unloadLoop + " chunks.");
+			
+			
+			//last thing... sleep for a bit to allow the server to generate! 
 			log.info(logPrefix + "Sleeping for 20 Seconds...");
 			try {
 				Thread.sleep(20000); // 1000 = do nothing for 1000 milliseconds (1 second)
 			} catch(InterruptedException e){
 				e.printStackTrace();
 			}
-			
 			
 		}
 		//originalSpawn
@@ -329,7 +331,7 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 						try {
 							radius = Integer.parseInt(args[0]);			//i was originally going to do a radius, but its technically diameter
 							log.info(logPrefix + " Radius: " + radius);
-							if ((radius > 0) | (radius <= 75)) {		// put a cap of 75 chunk diameter
+							if ((radius > 0) && (radius <= 75)) {		// put a cap of 75 chunk diameter
 								if (pluginEnabled == false){
 									log.info(logPrefix + "Plugin Disabled!");
 									return false;				//if server is shutting down while generating, dont generate any more!
