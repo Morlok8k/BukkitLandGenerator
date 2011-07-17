@@ -61,7 +61,7 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 	//private final BLGEntityListener entityListener = new BLGEntityListener(this);
 	//private final BLGBlockListener blockListener = new BLGBlockListener(this);
 	
-	
+	public static final boolean debug = false;    // debug output
 	
 	//reminder:
 	//Static is "Global"
@@ -80,8 +80,6 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 	public static final String logPrefix = "[BukkitLandGenerator] ";
 	public static String chatPrefix = ChatColor.GREEN + logPrefix + ChatColor.WHITE;
 	String version;
-	
-	public static final boolean debug = false;    // debug output
 	
 	public boolean pluginEnabled = false;  //true means plugin is enabled
 	
@@ -172,9 +170,16 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 		boolean count;
 		int countUnload = 0;
 		
+		int xCount = 0;
+		int xIterations = (xRange / increment + 1);
+		
+		
+		
 		// Start Loop!
 		for (int currentX = 0 - xRange / 2; currentX <= xRange / 2; currentX += increment) {
-			
+		
+			xCount = xCount + 1;
+		
 			for (int currentY = 0 - yRange / 2; currentY <= yRange / 2; currentY += increment) {
 				currentIteration++;
 				
@@ -217,9 +222,9 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 			timeTracking[1] = timeTracking[2];
 			timeTracking[2] = timeTracking[3];
 			timeTracking[3] = System.currentTimeMillis();
-			if (currentIteration >= 4) {
+			if (xCount >= 4) {
 				differenceTime = (timeTracking[3] - timeTracking[0]) / 3; // well, this is what it boils down to
-				differenceTime *= 1 + (totalIterations - currentIteration);
+				differenceTime *= 1 + (xIterations - xCount);
 				log.info(String.format(logPrefix + "Estimated time remaining: %dh%dm%ds",
 						differenceTime / (1000 * 60 * 60), (differenceTime % (1000 * 60 * 60)) / (1000 * 60), ((differenceTime % (1000 * 60 * 60)) % (1000 * 60)) / 1000));
 			}
@@ -239,7 +244,7 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 			
 			for (unloadLoop = 0; unloadLoop < cache.length; unloadLoop++) {
 				count = world.unloadChunk(cache[unloadLoop].getX(), cache[unloadLoop].getZ(), true, true);
-				if (count == true) {
+				if (count) {
 					countUnload++;
 					count = false;
 				}
@@ -247,7 +252,10 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 			}
 			
 			log.info(logPrefix + "Cache: Unloaded " + countUnload + " of " + unloadLoop + " chunks.");
-			
+			if (countUnload == unloadLoop) {
+				log.info(logPrefix + "Server Crash?  BLG will stop.");
+				return;
+			}
 			
 			//last thing... sleep for a bit to allow the server to generate! 
 			log.info(logPrefix + "Sleeping for 20 Seconds...");
