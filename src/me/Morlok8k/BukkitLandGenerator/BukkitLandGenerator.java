@@ -61,7 +61,7 @@ public class BukkitLandGenerator extends JavaPlugin implements Runnable {
 	//private final BLGEntityListener entityListener = new BLGEntityListener(this);
 	//private final BLGBlockListener blockListener = new BLGBlockListener(this);
 	
-	public static final boolean debug = false;    // debug output
+	public static final boolean debug = true;    // debug output
 	
 	//reminder:
 	//Static is "Global"
